@@ -1,24 +1,37 @@
-// Import necessary hooks and functions from React.
-import { useContext, useReducer, createContext } from "react";
-import storeReducer, { initialStore } from "../store"  // Import the reducer and the initial state.
+// useGlobalReducer.jsx
+import { useReducer, useEffect } from 'react';
 
-// Create a context to hold the global state of the application
-// We will call this global state the "store" to avoid confusion while using local states
-const StoreContext = createContext()
+const initialState = { contacts: [], loading: false, error: null };
 
-// Define a provider component that encapsulates the store and warps it in a context provider to 
-// broadcast the information throught all the app pages and components.
-export function StoreProvider({ children }) {
-    // Initialize reducer with the initial state.
-    const [store, dispatch] = useReducer(storeReducer, initialStore())
-    // Provide the store and dispatch method to all child components.
-    return <StoreContext.Provider value={{ store, dispatch }}>
-        {children}
-    </StoreContext.Provider>
+function reducer(state, action) {
+  switch(action.type) {
+    case 'FETCH_START':
+      return { ...state, loading: true };
+    case 'FETCH_SUCCESS':
+      return { ...state, loading: false, contacts: action.payload };
+    case 'FETCH_ERROR':
+      return { ...state, loading: false, error: action.payload };
+    // otras acciones: ADD, UPDATE, DELETE
+    default:
+      return state;
+  }
 }
 
-// Custom hook to access the global state and dispatch function.
-export default function useGlobalReducer() {
-    const { dispatch, store } = useContext(StoreContext)
-    return { dispatch, store };
+export function useGlobalReducer() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  async function fetchContacts(user) {
+    dispatch({ type: 'FETCH_START' });
+    try {
+      const res = await fetch(`https://playground.4geeks.com/todo/users/${user}`);
+      const data = await res.json();
+      dispatch({ type: 'FETCH_SUCCESS', payload: data.todo || [] });
+    } catch (error) {
+      dispatch({ type: 'FETCH_ERROR', payload: error.message });
+    }
+  }
+
+  // funciones para add, update, delete...
+
+  return { state, dispatch, fetchContacts };
 }

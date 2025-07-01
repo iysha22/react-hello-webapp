@@ -1,16 +1,355 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="icon" href="/4geeks.ico" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello Rigo</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+
+    nav {
+      background: #222;
+      padding: 1rem;
+    }
+
+    nav a {
+      color: white;
+      margin-right: 1rem;
+      text-decoration: none;
+    }
+
+    footer {
+      background: #f1f1f1;
+      padding: 1rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .container {
+      padding: 2rem;
+    }
+
+    .contact-card {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ccc;
+      padding: 1rem 0;
+    }
+
+    .contact-card img {
+      border-radius: 50%;
+      width: 80px;
+      margin-right: 1rem;
+    }
+
+    .contact-info {
+      flex-grow: 1;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+
+    .btn-green {
+      background: green;
+      color: white;
+      border: none;
+    }
+
+    .btn-red {
+      background: red;
+      color: white;
+      border: none;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 300px;
+    }
+
+    .modal-content label {
+      display: block;
+      margin: 0.5rem 0 0.2rem;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.4rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="/">Home</a>
+    <a href="/contacts">Contacts</a>
+    <a href="/demo">Demo</a>
+  </nav>
+
+  <!-- Main content -->
+  <div class="container">
+    <h1>Contact List</h1>
+    <button id="btnAddContact" class="btn btn-green">Add new contact</button>
+
+    <div id="contactsContainer">
+      <!-- Contacts will be rendered here -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Contact App</p>
+  </footer>
+
+  <!-- Modal for Add/Edit contact -->
+  <div class="modal" id="contactModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add Contact</h2>
+      <form id="contactForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required />
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" required />
+
+        <label for="phone">Phone:</label>
+        <input type="tel" id="phone" required />
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required />
+
+        <label for="avatar">Avatar URL:</label>
+        <input type="url" id="avatar" placeholder="https://example.com/avatar.jpg" />
+
+        <button type="submit" class="btn btn-green">Save</button>
+        <button type="button" class="btn" id="btnCancel">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal for delete confirmation -->
+  <div class="modal" id="deleteModal">
+    <div class="modal-content">
+      <p>Are you sure you want to delete this contact?</p>
+      <button id="confirmDelete" class="btn btn-red">Yes, Please</button>
+      <button id="cancelDelete" class="btn">!oh no!</button>
+    </div>
+  </div>
+
+  <script>
+    // Contact list array
+    let contacts = [
+  {
+    id: 1,
+    name: "Mike Amendolla",
+    address: "5842 Hillcrest Rd",
+    phone: "(870) 288-4149",
+    email: "mike.ana@example.com",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+  },
+  {
+    id: 2,
+    name: "Laura Johnson",
+    address: "123 Maple St",
+    phone: "(555) 123-4567",
+    email: "laura.johnson@example.com",
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+  },
+  {
+    id: 3,
+    name: "Carlos Mendoza",
+    address: "987 Oak Ave",
+    phone: "(555) 987-6543",
+    email: "carlos.mendoza@example.com",
+    avatar: "https://randomuser.me/api/portraits/men/85.jpg"
+  },
+  {
+    id: 4,
+    name: "Sara Gómez",
+    address: "456 Pine Rd",
+    phone: "(555) 321-4321",
+    email: "sara.gomez@example.com",
+    avatar: "https://randomuser.me/api/portraits/women/65.jpg"
+  },
+  {
+    id: 5,
+    name: "John Smith",
+    address: "789 Elm St",
+    phone: "(555) 111-2222",
+    email: "john.smith@example.com",
+    avatar: "https://randomuser.me/api/portraits/men/12.jpg"
+  }
+];
+
+   
+    const API_BASE = 'https://playground.4geeks.com/todo';
+    const USER = 'iysha-22';
+
+    let editingContactId = null;
+    let deletingContactId = null;
+
+    const contactsContainer = document.getElementById('contactsContainer');
+    const contactModal = document.getElementById('contactModal');
+    const deleteModal = document.getElementById('deleteModal');
+    const contactForm = document.getElementById('contactForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const btnAddContact = document.getElementById('btnAddContact');
+    const btnCancel = document.getElementById('btnCancel');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
+
+    // Render contacts in the container
+    function renderContacts() {
+      contactsContainer.innerHTML = '';
+      if (contacts.length === 0) {
+        contactsContainer.innerHTML = '<p>No contacts found.</p>';
+        return;
+      }
+      contacts.forEach(contact => {
+        const div = document.createElement('div');
+        div.className = 'contact-card';
+        div.innerHTML = `
+          <img src="${contact.avatar || 'https://via.placeholder.com/80'}" alt="User" />
+          <div class="contact-info">
+            <h3>${contact.name}</h3>
+            <p>📍 ${contact.address}</p>
+            <p>📞 ${contact.phone}</p>
+            <p>✉️ ${contact.email}</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-edit" data-id="${contact.id}">✏️</button>
+            <button class="btn btn-red btn-delete" data-id="${contact.id}">🗑️</button>
+          </div>
+        `;
+        contactsContainer.appendChild(div);
+      });
+
+      // Add event listeners for edit and delete buttons
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const id = parseInt(e.target.dataset.id);
+          openEditModal(id);
+        });
+      });
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const id = parseInt(e.target.dataset.id);
+          openDeleteModal(id);
+        });
+      });
+    }
+
+    // Open add contact modal
+    btnAddContact.addEventListener('click', () => {
+      editingContactId = null;
+      modalTitle.textContent = 'Add Contact';
+      contactForm.reset();
+      contactModal.style.display = 'flex';
+    });
+
+    // Open edit contact modal
+    function openEditModal(id) {
+      editingContactId = id;
+      const contact = contacts.find(c => c.id === id);
+      if (!contact) return;
+      modalTitle.textContent = 'Edit Contact';
+      contactForm.name.value = contact.name;
+      contactForm.address.value = contact.address;
+      contactForm.phone.value = contact.phone;
+      contactForm.email.value = contact.email;
+      contactForm.avatar.value = contact.avatar || '';
+      contactModal.style.display = 'flex';
+    }
+
+    // Close contact modal
+    btnCancel.addEventListener('click', () => {
+      contactModal.style.display = 'none';
+    });
+
+    // Submit add/edit form
+    contactForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const newContact = {
+        id: editingContactId || Date.now(),
+        name: contactForm.name.value.trim(),
+        address: contactForm.address.value.trim(),
+        phone: contactForm.phone.value.trim(),
+        email: contactForm.email.value.trim(),
+        avatar: contactForm.avatar.value.trim()
+      };
+
+      if (editingContactId) {
+        // Edit existing
+        contacts = contacts.map(c => c.id === editingContactId ? newContact : c);
+      } else {
+        // Add new
+        contacts.push(newContact);
+      }
+      contactModal.style.display = 'none';
+      renderContacts();
+    });
+
+    // Open delete confirmation modal
+    function openDeleteModal(id) {
+      deletingContactId = id;
+      deleteModal.style.display = 'flex';
+    }
+
+    // Confirm delete
+    confirmDelete.addEventListener('click', () => {
+      contacts = contacts.filter(c => c.id !== deletingContactId);
+      deletingContactId = null;
+      deleteModal.style.display = 'none';
+      renderContacts();
+    });
+
+    // Cancel delete
+    cancelDelete.addEventListener('click', () => {
+      deletingContactId = null;
+      deleteModal.style.display = 'none';
+    });
+
+    // Close modals when clicking outside modal content
+    window.addEventListener('click', e => {
+      if (e.target === contactModal) {
+        contactModal.style.display = 'none';
+      }
+      if (e.target === deleteModal) {
+        deleteModal.style.display = 'none';
+      }
+    });
+
+    // Initial render
+    renderContacts();
+
+  </script>
+</body>
+
 </html>

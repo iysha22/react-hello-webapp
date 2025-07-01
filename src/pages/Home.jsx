@@ -6,11 +6,10 @@ export const Home = () => {
   const {store, dispatch} =useGlobalReducer()
 
 	return (
-		<div className="text-center mt-5">
-			<h1>Hello Rigo!!</h1>
-			<p>
-				<img src={rigoImageUrl} />
-			</p>
-		</div>
-	);
+		 <div style={{ padding: 20 }}>
+    <h1>Welcome to the Contact App</h1>
+    <p>This app lets you manage your contacts with CRUD operations and API sync.</p>
+    <Link to="/contacts"><button>Go to Contacts</button></Link>
+  </div>
+	)
 }; 
