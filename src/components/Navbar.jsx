@@ -1,19 +1,11 @@
 import { Link } from "react-router-dom";
 
-export const Navbar = () => {
+const Navbar = () => (
+  <nav style={{ background: "#222", padding: "10px" }}>
+    <Link to="/" style={{ color: "white", marginRight: 15 }}>Home</Link>
+    <Link to="/contacts" style={{ color: "white", marginRight: 15 }}>Contacts</Link>
+    <Link to="/demo" style={{ color: "white" }}>Demo</Link>
+  </nav>
+);
 
-	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
-				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>
-				</div>
-			</div>
-		</nav>
-	);
-};
+export default Navbar;
