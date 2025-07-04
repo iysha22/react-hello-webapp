@@ -1,154 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gestión de Contactos</title>
   <style>
-    /* Contact Card */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+    }
+
     .contact-card {
       border: 1px solid #ddd;
-      border-radius: 8px;
       padding: 15px;
-      margin-bottom: 15px;
-      background: #fff;
-      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
+      margin: 10px 0;
+      border-radius: 8px;
+      background-color: #fafafa;
     }
 
     .contact-header {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
     }
 
     .contact-avatar {
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      object-fit: cover;
       margin-right: 15px;
-      border: 2px solid #007bff;
-    }
-
-    /* Flex para que footer quede abajo */
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      flex-direction: column;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-    }
-
-    body {
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      flex: 1 0 auto;
-      /* que crezca y ocupe espacio */
-    }
-
-    h1 {
-      margin-bottom: 20px;
     }
 
     .btn {
-      padding: 10px 15px;
+      padding: 6px 12px;
+      margin-right: 5px;
       border: none;
-      border-radius: 5px;
+      border-radius: 4px;
       cursor: pointer;
-      margin-right: 10px;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      color: white;
     }
 
     .btn-primary {
-      background: #007bff;
+      background-color: #007bff;
       color: white;
     }
 
     .btn-danger {
-      background: #dc3545;
-      color: white;
-    }
-
-    .btn-success {
-      background: #28a745;
+      background-color: #dc3545;
       color: white;
     }
 
     .btn-secondary {
-      background: #6c757d;
+      background-color: #6c757d;
       color: white;
     }
 
-    /* Contact Card */
-    .contact-card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      background: #fff;
-      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
-    }
-
-    .contact-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .contact-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-right: 15px;
-      border: 2px solid #007bff;
-    }
-
-    label {
-      display: block;
-      margin: 8px 0 4px;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"] {
-      width: 100%;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-
     footer {
-      flex-shrink: 0;
-      /* No se encoge */
-      background-color: #e9ebee;
-      color: rgb(31, 29, 29);
       text-align: center;
-      padding: 15px 20px;
-      font-family: Arial, sans-serif;
-      border-radius: 0 0 8px 8px;
-      margin-top: 20px;
+      padding: 10px;
+      background-color: #222;
+      color: white;
+      margin-top: 30px;
     }
   </style>
 </head>
-
 <body>
-
-
-
   <div class="container" id="contact-list-view">
     <h1>Lista de Contactos</h1>
     <button class="btn btn-success" id="btn-add-contact">Agregar Contacto</button>
@@ -182,8 +110,7 @@
   </footer>
 
   <script>
-    // Contactos fijos (no se pueden borrar ni editar)
-    const fixedContacts = [
+    let fixedContacts = JSON.parse(localStorage.getItem("fixedContacts")) || [
       {
         full_name: "Juan Pérez",
         email: "juan@example.com",
@@ -198,9 +125,22 @@
         address: "Avenida Siempre Viva 742",
         avatar: "https://randomuser.me/api/portraits/women/45.jpg",
       },
+      {
+        full_name: "Carlos González",
+        email: "carlos.gonzalez@mail.com",
+        phone: "555-9101",
+        address: "Calle del Sol 456",
+        avatar: "https://randomuser.me/api/portraits/men/22.jpg",
+      },
+      {
+        full_name: "Ana Fernández",
+        email: "ana.fernandez@mail.com",
+        phone: "555-1122",
+        address: "Camino Verde 789",
+        avatar: "https://randomuser.me/api/portraits/women/56.jpg",
+      },
     ];
 
-    // Contactos de usuario almacenados y editables
     let userContacts = JSON.parse(localStorage.getItem("contacts")) || [];
 
     const btnAddContact = document.getElementById("btn-add-contact");
@@ -212,17 +152,15 @@
 
     let editIndex = null;
 
-    // Guardar contactos de usuario en localStorage
     function saveContacts() {
       localStorage.setItem("contacts", JSON.stringify(userContacts));
+      localStorage.setItem("fixedContacts", JSON.stringify(fixedContacts));
     }
 
-    // Renderizar contactos fijos + contactos usuario
     function renderContacts() {
       contactsContainer.innerHTML = "";
 
-      // Mostrar contactos fijos (sin botones)
-      fixedContacts.forEach((c) => {
+      fixedContacts.forEach((c, i) => {
         const card = document.createElement("div");
         card.classList.add("contact-card");
         card.innerHTML = `
@@ -233,11 +171,12 @@
           <p><strong>Email:</strong> ${c.email}</p>
           <p><strong>Teléfono:</strong> ${c.phone}</p>
           <p><strong>Dirección:</strong> ${c.address}</p>
+          <button class="btn btn-primary btn-edit-fixed" data-index="${i}">Editar</button>
+          <button class="btn btn-danger btn-delete-fixed" data-index="${i}">Eliminar</button>
         `;
         contactsContainer.appendChild(card);
       });
 
-      // Mostrar contactos del usuario (con botones)
       userContacts.forEach((c, i) => {
         const card = document.createElement("div");
         card.classList.add("contact-card");
@@ -255,7 +194,7 @@
         contactsContainer.appendChild(card);
       });
 
-      // Eventos botones editar
+      // Editar contacto de usuario
       document.querySelectorAll(".btn-edit").forEach((btn) => {
         btn.addEventListener("click", (e) => {
           editIndex = e.target.getAttribute("data-index");
@@ -269,12 +208,41 @@
         });
       });
 
-      // Eventos botones eliminar
+      // Eliminar contacto de usuario
       document.querySelectorAll(".btn-delete").forEach((btn) => {
         btn.addEventListener("click", (e) => {
           const idx = e.target.getAttribute("data-index");
           if (confirm("¿Seguro que quieres eliminar este contacto?")) {
             userContacts.splice(idx, 1);
+            saveContacts();
+            renderContacts();
+          }
+        });
+      });
+
+      // Editar contacto fijo
+      document.querySelectorAll(".btn-edit-fixed").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const idx = e.target.getAttribute("data-index");
+          const c = fixedContacts[idx];
+          contactForm.full_name.value = c.full_name;
+          contactForm.email.value = c.email;
+          contactForm.phone.value = c.phone;
+          contactForm.address.value = c.address;
+          editIndex = null;
+          contactListView.style.display = "none";
+          addContactView.style.display = "block";
+        });
+      });
+
+      // Eliminar contacto fijo
+      document.querySelectorAll(".btn-delete-fixed").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const idx = e.target.getAttribute("data-index");
+          if (confirm("¿Eliminar este contacto fijo? Se moverá a tu lista editable.")) {
+            const c = fixedContacts[idx];
+            userContacts.push({...c});
+            fixedContacts.splice(idx, 1);
             saveContacts();
             renderContacts();
           }
@@ -317,7 +285,5 @@
 
     renderContacts();
   </script>
-
 </body>
-
 </html>
