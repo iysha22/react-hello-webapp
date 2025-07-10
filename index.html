@@ -1,289 +1,346 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gestión de Contactos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact List</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f4f4f4;
+      background-color: #f6f6f6;
     }
 
-    .container {
+    .app {
       max-width: 800px;
-      margin: auto;
-      padding: 20px;
-      background-color: #fff;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
     }
 
-    .contact-card {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-      background-color: #fafafa;
+    .card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     }
 
-    .contact-header {
+    .contact-info {
       display: flex;
       align-items: center;
+      gap: 1rem;
+      flex: 1;
     }
 
-    .contact-avatar {
-      width: 50px;
-      height: 50px;
+    .contact-photo {
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      margin-right: 15px;
+      object-fit: cover;
+      border: 2px solid #ccc;
+      flex-shrink: 0;
     }
 
-    .btn {
-      padding: 6px 12px;
-      margin-right: 5px;
+    .buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    button {
+      padding: 0.4rem 0.8rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
+      background-color: #ddd;
       cursor: pointer;
+      font-size: 1.1rem;
     }
 
-    .btn-success {
-      background-color: #28a745;
+    button:hover {
+      background-color: #bbb;
+    }
+
+    /* Botón "Add new contact" */
+    .add-contact-btn {
+      margin-bottom: 3rem;
+      background-color: green;
       color: white;
+      font-weight: bold;
+      padding: 0.6rem 1.2rem;
+      font-size: 1.1rem;
     }
 
-    .btn-primary {
-      background-color: #007bff;
-      color: white;
+    /* Modal overlay */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
     }
 
-    .btn-danger {
-      background-color: #dc3545;
-      color: white;
+    .modal.active {
+      display: flex;
     }
 
-    .btn-secondary {
-      background-color: #6c757d;
-      color: white;
+    /* Modal content */
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 320px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      position: relative;
     }
 
-    footer {
+    .modal-content h2 {
+      margin-top: 0;
       text-align: center;
-      padding: 10px;
-      background-color: #222;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.4rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .modal-buttons {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    .modal-content button {
+      background-color: green;
       color: white;
-      margin-top: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+    }
+
+    .modal-content button.cancel-btn {
+      background-color: #999;
     }
   </style>
 </head>
+
 <body>
-  <div class="container" id="contact-list-view">
-    <h1>Lista de Contactos</h1>
-    <button class="btn btn-success" id="btn-add-contact">Agregar Contacto</button>
-    <div id="contacts-container"></div>
-  </div>
+  <div class="app">
+    <button class="add-contact-btn" id="addContactBtn">Add new contact</button>
 
-  <div class="container" id="add-contact-view" style="display:none;">
-    <h1>Agregar / Editar Contacto</h1>
-    <form id="contact-form">
-      <label for="full_name">Nombre completo</label>
-      <input type="text" id="full_name" name="full_name" required />
-
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required />
-
-      <label for="phone">Teléfono</label>
-      <input type="tel" id="phone" name="phone" />
-
-      <label for="address">Dirección</label>
-      <input type="text" id="address" name="address" />
-
-      <div style="margin-top: 20px;">
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <button type="button" class="btn btn-secondary" id="btn-cancel">Cancelar</button>
+    <div id="contactsContainer">
+      <div class="card">
+        <div class="contact-info">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mike Anamendolla" class="contact-photo" />
+          <div>
+            <h3>Mike Anamendolla</h3>
+            <p><strong>📍</strong> 5842 Hillcrest Rd</p>
+            <p><strong>📞</strong> (870) 288-4149</p>
+            <p><strong>✉️</strong> mike.ana@example.com</p>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="edit-btn">✏️</button>
+          <button class="delete-btn">🗑️</button>
+        </div>
       </div>
-    </form>
+
+      <div class="card">
+        <div class="contact-info">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Connor" class="contact-photo" />
+          <div>
+            <h3>Sarah Connor</h3>
+            <p><strong>📍</strong> 123 Skynet Avenue</p>
+            <p><strong>📞</strong> (555) 123-4567</p>
+            <p><strong>✉️</strong> sarah.connor@example.com</p>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="edit-btn">✏️</button>
+          <button class="delete-btn">🗑️</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="contact-info">
+          <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="John Smith" class="contact-photo" />
+          <div>
+            <h3>John Smith</h3>
+            <p><strong>📍</strong> 42 Baker Street</p>
+            <p><strong>📞</strong> (123) 456-7890</p>
+            <p><strong>✉️</strong> john.smith@example.com</p>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="edit-btn">✏️</button>
+          <button class="delete-btn">🗑️</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="contact-info">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Laura González" class="contact-photo" />
+          <div>
+            <h3>Laura González</h3>
+            <p><strong>📍</strong> Calle Luna 123</p>
+            <p><strong>📞</strong> (321) 654-0987</p>
+            <p><strong>✉️</strong> laura.g@example.com</p>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="edit-btn">✏️</button>
+          <button class="delete-btn">🗑️</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <footer>
-    &copy; 2025 Gestión de Contactos. Todos los derechos reservados.
-  </footer>
+  <!-- Modal para agregar/editar contacto -->
+  <div class="modal" id="contactModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Nuevo contacto</h2>
+      <form id="contactForm">
+        <label for="name">Nombre completo</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="address">Dirección</label>
+        <input type="text" id="address" name="address" required />
+
+        <label for="phone">Teléfono</label>
+        <input type="tel" id="phone" name="phone" required />
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="photo">URL de la foto</label>
+        <input type="url" id="photo" name="photo" placeholder="https://example.com/foto.jpg" />
+
+        <div class="modal-buttons">
+          <button type="submit" id="saveBtn">Agregar</button>
+          <button type="button" class="cancel-btn" id="cancelBtn">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script>
-    let fixedContacts = JSON.parse(localStorage.getItem("fixedContacts")) || [
-      {
-        full_name: "Juan Pérez",
-        email: "juan@example.com",
-        phone: "555-1234",
-        address: "Calle Falsa 123",
-        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      },
-      {
-        full_name: "María López",
-        email: "maria.lopez@mail.com",
-        phone: "555-5678",
-        address: "Avenida Siempre Viva 742",
-        avatar: "https://randomuser.me/api/portraits/women/45.jpg",
-      },
-      {
-        full_name: "Carlos González",
-        email: "carlos.gonzalez@mail.com",
-        phone: "555-9101",
-        address: "Calle del Sol 456",
-        avatar: "https://randomuser.me/api/portraits/men/22.jpg",
-      },
-      {
-        full_name: "Ana Fernández",
-        email: "ana.fernandez@mail.com",
-        phone: "555-1122",
-        address: "Camino Verde 789",
-        avatar: "https://randomuser.me/api/portraits/women/56.jpg",
-      },
-    ];
+    const addContactBtn = document.getElementById('addContactBtn');
+    const modal = document.getElementById('contactModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const contactForm = document.getElementById('contactForm');
+    const contactsContainer = document.getElementById('contactsContainer');
+    const modalTitle = document.getElementById('modalTitle');
+    const saveBtn = document.getElementById('saveBtn');
 
-    let userContacts = JSON.parse(localStorage.getItem("contacts")) || [];
+    let editingCard = null;
 
-    const btnAddContact = document.getElementById("btn-add-contact");
-    const btnCancel = document.getElementById("btn-cancel");
-    const contactListView = document.getElementById("contact-list-view");
-    const addContactView = document.getElementById("add-contact-view");
-    const contactForm = document.getElementById("contact-form");
-    const contactsContainer = document.getElementById("contacts-container");
-
-    let editIndex = null;
-
-    function saveContacts() {
-      localStorage.setItem("contacts", JSON.stringify(userContacts));
-      localStorage.setItem("fixedContacts", JSON.stringify(fixedContacts));
-    }
-
-    function renderContacts() {
-      contactsContainer.innerHTML = "";
-
-      fixedContacts.forEach((c, i) => {
-        const card = document.createElement("div");
-        card.classList.add("contact-card");
-        card.innerHTML = `
-          <div class="contact-header">
-            <img class="contact-avatar" src="${c.avatar}" alt="Avatar ${c.full_name}" />
-            <h3>${c.full_name}</h3>
-          </div>
-          <p><strong>Email:</strong> ${c.email}</p>
-          <p><strong>Teléfono:</strong> ${c.phone}</p>
-          <p><strong>Dirección:</strong> ${c.address}</p>
-          <button class="btn btn-primary btn-edit-fixed" data-index="${i}">Editar</button>
-          <button class="btn btn-danger btn-delete-fixed" data-index="${i}">Eliminar</button>
-        `;
-        contactsContainer.appendChild(card);
-      });
-
-      userContacts.forEach((c, i) => {
-        const card = document.createElement("div");
-        card.classList.add("contact-card");
-        card.innerHTML = `
-          <div class="contact-header">
-            <img class="contact-avatar" src="${c.avatar || "https://randomuser.me/api/portraits/lego/1.jpg"}" alt="Avatar ${c.full_name}" />
-            <h3>${c.full_name}</h3>
-          </div>
-          <p><strong>Email:</strong> ${c.email}</p>
-          <p><strong>Teléfono:</strong> ${c.phone}</p>
-          <p><strong>Dirección:</strong> ${c.address}</p>
-          <button class="btn btn-primary btn-edit" data-index="${i}">Editar</button>
-          <button class="btn btn-danger btn-delete" data-index="${i}">Eliminar</button>
-        `;
-        contactsContainer.appendChild(card);
-      });
-
-      // Editar contacto de usuario
-      document.querySelectorAll(".btn-edit").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          editIndex = e.target.getAttribute("data-index");
-          const c = userContacts[editIndex];
-          contactForm.full_name.value = c.full_name;
-          contactForm.email.value = c.email;
-          contactForm.phone.value = c.phone;
-          contactForm.address.value = c.address;
-          contactListView.style.display = "none";
-          addContactView.style.display = "block";
-        });
-      });
-
-      // Eliminar contacto de usuario
-      document.querySelectorAll(".btn-delete").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          const idx = e.target.getAttribute("data-index");
-          if (confirm("¿Seguro que quieres eliminar este contacto?")) {
-            userContacts.splice(idx, 1);
-            saveContacts();
-            renderContacts();
-          }
-        });
-      });
-
-      // Editar contacto fijo
-      document.querySelectorAll(".btn-edit-fixed").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          const idx = e.target.getAttribute("data-index");
-          const c = fixedContacts[idx];
-          contactForm.full_name.value = c.full_name;
-          contactForm.email.value = c.email;
-          contactForm.phone.value = c.phone;
-          contactForm.address.value = c.address;
-          editIndex = null;
-          contactListView.style.display = "none";
-          addContactView.style.display = "block";
-        });
-      });
-
-      // Eliminar contacto fijo
-      document.querySelectorAll(".btn-delete-fixed").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          const idx = e.target.getAttribute("data-index");
-          if (confirm("¿Eliminar este contacto fijo? Se moverá a tu lista editable.")) {
-            const c = fixedContacts[idx];
-            userContacts.push({...c});
-            fixedContacts.splice(idx, 1);
-            saveContacts();
-            renderContacts();
-          }
-        });
-      });
-    }
-
-    btnAddContact.addEventListener("click", () => {
+    // Abrir modal para nuevo contacto
+    addContactBtn.addEventListener('click', () => {
+      editingCard = null;
+      modalTitle.textContent = "Nuevo contacto";
+      saveBtn.textContent = "Agregar";
       contactForm.reset();
-      editIndex = null;
-      contactListView.style.display = "none";
-      addContactView.style.display = "block";
+      modal.classList.add('active');
     });
 
-    btnCancel.addEventListener("click", () => {
-      addContactView.style.display = "none";
-      contactListView.style.display = "block";
+    // Cerrar modal
+    cancelBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      editingCard = null;
     });
 
-    contactForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const newContact = {
-        full_name: contactForm.full_name.value.trim(),
-        email: contactForm.email.value.trim(),
-        phone: contactForm.phone.value.trim(),
-        address: contactForm.address.value.trim(),
-        avatar: "",
-      };
+    // Delegar eventos para editar y eliminar
+    contactsContainer.addEventListener('click', e => {
+      if (e.target.classList.contains('edit-btn')) {
+        editingCard = e.target.closest('.card');
+        modalTitle.textContent = "Editar contacto";
+        saveBtn.textContent = "Guardar";
 
-      if (editIndex !== null) {
-        userContacts[editIndex] = newContact;
-      } else {
-        userContacts.push(newContact);
+        const info = editingCard.querySelector('.contact-info > div');
+
+        contactForm.name.value = info.querySelector('h3').textContent;
+        contactForm.address.value = info.querySelectorAll('p')[0].textContent.replace('📍 ', '');
+        contactForm.phone.value = info.querySelectorAll('p')[1].textContent.replace('📞 ', '');
+        contactForm.email.value = info.querySelectorAll('p')[2].textContent.replace('✉️ ', '');
+        contactForm.photo.value = editingCard.querySelector('.contact-photo').src;
+
+        modal.classList.add('active');
+      } else if (e.target.classList.contains('delete-btn')) {
+        const card = e.target.closest('.card');
+        if (confirm('¿Seguro que quieres eliminar este contacto?')) {
+          card.remove();
+        }
       }
-      saveContacts();
-      renderContacts();
-      addContactView.style.display = "none";
-      contactListView.style.display = "block";
     });
 
-    renderContacts();
+    // Guardar contacto (nuevo o editado)
+    contactForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const name = contactForm.name.value.trim();
+      const address = contactForm.address.value.trim();
+      const phone = contactForm.phone.value.trim();
+      const email = contactForm.email.value.trim();
+      const photo = contactForm.photo.value.trim() || 'https://via.placeholder.com/60?text=User';
+
+      if (editingCard) {
+        // Editar existente
+        const info = editingCard.querySelector('.contact-info > div');
+        info.querySelector('h3').textContent = name;
+        const pTags = info.querySelectorAll('p');
+        pTags[0].innerHTML = `<strong>📍</strong> ${address}`;
+        pTags[1].innerHTML = `<strong>📞</strong> ${phone}`;
+        pTags[2].innerHTML = `<strong>✉️</strong> ${email}`;
+        editingCard.querySelector('.contact-photo').src = photo;
+
+        editingCard = null;
+      } else {
+        // Añadir nuevo contacto
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.innerHTML = `
+          <div class="contact-info">
+            <img src="${photo}" alt="${name}" class="contact-photo" />
+            <div>
+              <h3>${name}</h3>
+              <p><strong>📍</strong> ${address}</p>
+              <p><strong>📞</strong> ${phone}</p>
+              <p><strong>✉️</strong> ${email}</p>
+            </div>
+          </div>
+          <div class="buttons">
+            <button class="edit-btn">✏️</button>
+            <button class="delete-btn">🗑️</button>
+          </div>
+        `;
+        contactsContainer.appendChild(card);
+      }
+
+      modal.classList.remove('active');
+      contactForm.reset();
+    });
   </script>
 </body>
+
 </html>

@@ -1,9 +1,12 @@
-import React from 'react';
+import React from "react";
 
-export default function Navbar() {
+const Navbar = () => {
   return (
-    <nav style={{ background: '#333', color: 'white', padding: '10px' }}>
-      <h2>Mi Navbar</h2>
+    <nav style={{ background: '#007bff', color: 'white', padding: '1rem', textAlign: 'center' }}>
+      <h2>📒 Agenda de Contactos</h2>
     </nav>
   );
-}
+};
+
+export default Navbar;
+

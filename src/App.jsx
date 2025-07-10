@@ -1,16 +1,20 @@
-import React from 'react';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import { ContactProvider } from "./context/ContactContext";
+import ContactList from "./components/ContactList";
+import AddContact from "./components/AddContact";
+import ModalConfirm from "./components/ModalConfirm";
+import "./index/index.css";
 
-export default function App() {
+function App() {
   return (
-    <>
-      <Navbar />
-      <main style={{ padding: '20px' }}>
-        <h1>Bienvenido a la app</h1>
-        <p>Este es el contenido principal.</p>
-      </main>
-      <Footer />
-    </>
+    <ContactProvider>
+      <div className="app">
+        <h1>Agenda de Contactos</h1>
+        <AddContact />
+        <ContactList />
+        <ModalConfirm />
+      </div>
+    </ContactProvider>
   );
 }
+
+export default App;
